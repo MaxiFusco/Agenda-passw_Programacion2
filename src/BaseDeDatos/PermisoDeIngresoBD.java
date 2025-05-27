@@ -1,13 +1,15 @@
 package BaseDeDatos;
 
 import ContraseñaIgu.IguContraseña;
+import ContraseñaIgu.Ingreso;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javax.swing.JOptionPane;
-import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
+import javax.swing.JFrame;
+import org.json.JSONObject;
 
 public class PermisoDeIngresoBD {
     private final HttpClient httpClient;
@@ -17,13 +19,10 @@ public class PermisoDeIngresoBD {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public void ingreso(String email, String contrasena) {
-         System.out.println(email);
-          System.out.println(contrasena);
+    public void ingreso(String email, String contrasena, JFrame Ingreso) {
         try {
             URI uri = URI.create("http://localhost:8080/api/usuarios/login");
 
-            // Crear el JSON con email y contraseña
             JSONObject jsonInput = new JSONObject();
             jsonInput.put("correoElectronico", email);
             jsonInput.put("contrasena", contrasena);
@@ -37,8 +36,12 @@ public class PermisoDeIngresoBD {
 
             // Enviar la solicitud y obtener la respuesta
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+
+            System.out.println(jsonInput.toString());
 
             // Verificar código de respuesta y procesar respuesta JSON
+              System.out.println(response.statusCode());
             if (response.statusCode() == 200) { // Código 200 - OK
                 JSONObject jsonResponse = new JSONObject(response.body());
                 if (jsonResponse.has("success")) {
@@ -47,13 +50,9 @@ public class PermisoDeIngresoBD {
                     if (success) {
                         JOptionPane.showMessageDialog(null, "Inicio de sesión correcto");
                         System.setProperty("user", email);
-
-                   
                        IguContraseña panel3 = new IguContraseña();
-                       // javax.swing.JFrame frame = new javax.swing.JFrame();
-                       // frame.add(panel3);
-                       // frame.pack();
-                        //frame.setVisible(true);
+                        Ingreso.dispose(); 
+                      
                     } else {
                         JOptionPane.showMessageDialog(null, "Email o contraseña incorrectos");
                     }
@@ -61,12 +60,11 @@ public class PermisoDeIngresoBD {
                     JOptionPane.showMessageDialog(null, "Respuesta del servidor no válida");
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Error en la comunicación con el servidor: " + response.statusCode());
+                JOptionPane.showMessageDialog(null, "Email o contraseña incorrectos" );
             }
-
+          
         } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+           
         }
     }
 }

@@ -5,53 +5,53 @@
 package BaseDeDatos;
 
 import ContraseñaIgu.Buscar;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import javax.swing.JOptionPane;
 
+import org.json.JSONObject;
 
-/**
- *
- * @author EdUaRdO
- */
 public class BuscarBD {
-  public void aplicacion1(String aplicacion,Buscar iguInstance){
-      try {
-            // Establecer conexión a la base de datos
-            Connection conn = BD.getConnection();
 
-            // Obtener los datos
-            String query = "SELECT aplicacion, usuario, contrasena, Email_recuperacion, Correo_electronico_usuarios FROM contra.datos WHERE aplicacion = ?";
-            PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, aplicacion);
-            ResultSet rs = statement.executeQuery();
+    public void aplicacion1(String nombreApp, Buscar ventana) {
+        try {
+            String nombreAppCodificada = URLEncoder.encode(nombreApp, StandardCharsets.UTF_8);
 
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/aplicaciones/" + nombreAppCodificada))
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
 
-            if (rs.next()) {
-                // Mostrar los datos
-                String aplicacion1 = rs.getString("aplicacion");
-                String usuario = rs.getString("usuario");
-                String contrasena =rs.getString("contrasena");
-                String Email_recuperacion =rs.getString("Email_recuperacion");
-                String Correo_electronico_usuarios =rs.getString("Correo_electronico_usuarios");
-               
-                
-                iguInstance.llevarDatos(aplicacion1, usuario, contrasena, Email_recuperacion, Correo_electronico_usuarios);
-                
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                // Aquí esperamos un objeto JSON (no un array)
+                JSONObject obj = new JSONObject(response.body());
+
+                String app = obj.optString("aplicacion", "");
+                String usuario = obj.optString("nombreUsuario", "");
+                String contrasena = obj.optString("contrasena", "");
+                String email = obj.optString("emailRecuperacion", "");
+                String usuarioCorreo = obj.optString("correoUsuario", "");
+
+                ventana.llevarDatos(app, usuario, contrasena, email, usuarioCorreo);
+
+            } else if (response.statusCode() == 404) {
+                JOptionPane.showMessageDialog(null, "Aplicación no encontrada.");
             } else {
-                // El contacto no fue encontrado en la base de datos
-                JOptionPane.showMessageDialog(null, "La aplicacion no fue encontrada");
+                JOptionPane.showMessageDialog(null, "Error al buscar. Código: " + response.statusCode() +
+                        "\nRespuesta: " + response.body());
             }
 
-            // Cerrar la conexión
-            conn.close();
-
-        } catch (SQLException e) {
-            // Manejar cualquier error de la base de datos
+        } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error en la base de datos: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error inesperado: " + e.getMessage());
         }
-   }
-  }
+    }
+}

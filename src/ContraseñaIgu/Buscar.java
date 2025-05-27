@@ -10,6 +10,7 @@ import BaseDeDatos.BuscarBD;
 import BaseDeDatos.BuscarContactos;
 import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,6 +24,8 @@ public class Buscar extends javax.swing.JFrame {
         initComponents();
         setVisible(true);
         cargarAplicaciones();
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
     }
     public void cargarAplicaciones() {  
         BuscarContactos cc = new BuscarContactos();
@@ -85,6 +88,11 @@ public class Buscar extends javax.swing.JFrame {
         CBoxAplicaciones.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 CBoxAplicacionesItemStateChanged(evt);
+            }
+        });
+        CBoxAplicaciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CBoxAplicacionesActionPerformed(evt);
             }
         });
 
@@ -196,23 +204,21 @@ public class Buscar extends javax.swing.JFrame {
     }//GEN-LAST:event_CBoxAplicacionesItemStateChanged
 
     private void BotonBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonBuscarActionPerformed
-    Object seleccion = CBoxAplicaciones.getSelectedItem();  
-    
-    // Verifica que la selección no sea nula  
-    if (seleccion != null) {  
-        // Verificamos si la selección es una instancia de BuscarContactos  
-        if (seleccion instanceof BuscarContactos) {  
-            BuscarContactos contacto = (BuscarContactos) seleccion;  
-            String aplicacion = contacto.getNombre();  
-            // Aquí realizar la búsqueda con el nombre de la aplicación  
+  Object seleccion = CBoxAplicaciones.getSelectedItem();  
+
+    if (seleccion != null && seleccion instanceof BuscarContactos) {
+        BuscarContactos contacto = (BuscarContactos) seleccion;
+        String aplicacion = contacto.getNombre();
+
+        if (!aplicacion.equals("Seleccione Aplicacion")) {
             BuscarBD buscarAplicacion = new BuscarBD();  
-            buscarAplicacion.aplicacion1(aplicacion, this);     
-        } else {  
-            JOptionPane.showMessageDialog(this, "Por favor, selecciona una aplicación válida.", "Advertencia", JOptionPane.WARNING_MESSAGE);  
-        }  
-    } else {  
-        JOptionPane.showMessageDialog(this, "Por favor, selecciona una aplicación.", "Advertencia", JOptionPane.WARNING_MESSAGE);  
-    } 
+            buscarAplicacion.aplicacion1(aplicacion, this);  
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccioná una aplicación válida.");
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Seleccioná una aplicación.");
+    }
     }//GEN-LAST:event_BotonBuscarActionPerformed
 
     private void BotonBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonBorrarActionPerformed
@@ -227,10 +233,15 @@ public class Buscar extends javax.swing.JFrame {
             String aplicacion = contacto.getNombre();  
             // Aquí realizar la búsqueda con el nombre de la aplicación  
             BorrarBD buscarAplicacion = new BorrarBD();  
-            buscarAplicacion.eliContacto(aplicacion);     
+            buscarAplicacion.eliContacto(aplicacion);
+            this.dispose();
         }   
     }  
     }//GEN-LAST:event_BotonBorrarActionPerformed
+
+    private void CBoxAplicacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CBoxAplicacionesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_CBoxAplicacionesActionPerformed
 
     /**
      * @param args the command line arguments

@@ -8,13 +8,11 @@ import BaseDeDatos.PermisoDeIngresoBD;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import javax.swing.JFrame;
 
-/**
- *
- * @author EdUaRdO
- */
+
 public class IngresoEncriptar {
-     public void Revisarcontrasena(String email,String contrasena){
+     public void Revisarcontrasena(String email,String contrasena,JFrame ventana){ 
     // Solicita al usuario que ingrese un texto
         String originalString = contrasena;
         if (originalString != null && !originalString.isEmpty()) {
@@ -30,10 +28,10 @@ public class IngresoEncriptar {
                 // Muestra el hash utilizando JOptionPane
                 //JOptionPane.showMessageDialog(null, "SHA-256 Hash: " + hashedValue);
                 String contrasena1= hashedValue;
+                System.out.println(contrasena1);
                 
-                PermisoDeIngresoBD permiso = new PermisoDeIngresoBD();
-                permiso.ingreso(email,contrasena1);
-                
+             PermisoDeIngresoBD permiso = new PermisoDeIngresoBD();
+             permiso.ingreso(email, contrasena1, ventana); 
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }

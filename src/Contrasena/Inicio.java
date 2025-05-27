@@ -4,10 +4,6 @@
  */
 package Contrasena;
 import ContraseñaIgu.Ingreso;
-/**
- *
- * @author EdUaRdO
- */
 
     public class Inicio {
     public static void main(String[] args) {

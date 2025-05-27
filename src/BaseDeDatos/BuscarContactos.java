@@ -4,67 +4,74 @@
  */
 package BaseDeDatos;
 
-import java.sql.Connection;  
-import java.sql.PreparedStatement;  
-import java.sql.ResultSet;  
-import java.sql.SQLException;  
-import java.util.Vector;  
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Vector;
+
+import javax.swing.JOptionPane;
+
+import org.json.JSONArray;
+import org.json.JSONObject;  
 
 /**  
  *  
  * @author EdUaRdO  
  */  
-public class BuscarContactos {  
+public class BuscarContactos {
 
-    private int id;  
-    private String nombre;  
+    private int id;
+    private String nombre;
 
-    public int getId() {  
-        return id;  
-    }  
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public void setId(int id) {  
-        this.id = id;  
-    }  
+    @Override
+    public String toString() {
+        return this.nombre;
+    }
 
-    public String getNombre() {  
-        return nombre;  
-    }  
+    public Vector<BuscarContactos> mostrarAplicacion() {
+        Vector<BuscarContactos> datos = new Vector<>();
+        HttpClient client = HttpClient.newHttpClient();
 
-    public void setNombre(String nombre) {  
-        this.nombre = nombre;  
-    }  
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI("http://localhost:8080/api/aplicaciones"))
+                .header("Accept", "application/json")
+                .GET()
+                .build();
 
-    @Override  
-    public String toString() {  
-        return this.nombre;  
-    }  
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    public Vector<BuscarContactos> mostrarAplicacion() {  
-        PreparedStatement ps = null;  
-        ResultSet rs = null;  
-        Vector<BuscarContactos> datos = new Vector<>();  
+            if (response.statusCode() == 200) {
+                JSONArray array = new JSONArray(response.body());
 
-        try (Connection conn = BD.getConnection()) { // Usar conexión a través de BD.getConnection()  
-            String sql = "SELECT aplicacion FROM contra.datos"; // Verifica que 'aplicacion' sea correcto  
-            ps = conn.prepareStatement(sql);  
-            rs = ps.executeQuery();  
+                // opción por defecto
+                BuscarContactos def = new BuscarContactos();
+                def.setId(0);
+                def.setNombre("Seleccione Aplicación");
+                datos.add(def);
 
-            // Agregar un elemento por defecto  
-            BuscarContactos dat = new BuscarContactos();  
-            dat.setId(0);  
-            dat.setNombre("Seleccione Aplicacion");  
-            datos.add(dat);  
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    BuscarContactos contacto = new BuscarContactos();
+                    contacto.setId(obj.getInt("id"));
+                    contacto.setNombre(obj.getString("aplicacion"));
+                    datos.add(contacto);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Error al obtener datos: " + response.statusCode());
+            }
 
-            while (rs.next()) {  
-                dat = new BuscarContactos();  
-                dat.setId(0); // Asumir que este valor no se recibe en la consulta actual  
-                dat.setNombre(rs.getString("aplicacion")); // Asegúrate de que la columna se llama 'aplicacion'  
-                datos.add(dat);  
-            }  
-        } catch (SQLException e) {  
-            e.printStackTrace();  
-        }  
-        return datos;  
-    }  
-} 
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al conectar con el servidor: " + e.getMessage());
+        }
+
+        return datos;
+    }
+}

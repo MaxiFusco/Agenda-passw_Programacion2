@@ -4,6 +4,8 @@
  */
 package ContraseñaIgu;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author EdUaRdO
@@ -182,7 +184,14 @@ public class Recuperacion extends javax.swing.JFrame {
     }//GEN-LAST:event_ingEmailActionPerformed
 
     private void botonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonEnviarActionPerformed
-    
+     String email = ingEmail.getText().trim();
+
+    if (!email.isEmpty()) {
+        BaseDeDatos.RecuperarBD recuperar = new BaseDeDatos.RecuperarBD();
+        recuperar.recuperarContrasena(email);
+    } else {
+        JOptionPane.showMessageDialog(this, "Por favor, ingresa un correo electrónico.");
+    }
     }//GEN-LAST:event_botonEnviarActionPerformed
 
     /**
